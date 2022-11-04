@@ -1,0 +1,31 @@
+---
+title: "Kickstarter Analysis"
+author: "Justin Dang"
+date: "2022-10-31"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(data.table)
+library(lubridate)
+library(dplyr)
+
+kickstarter_og <- fread("combined_test.csv")
+kickstarter_corrected <- kickstarter_og %>%
+  subset(select = -c(currency_symbol, currency_trailing_code, creator, friends, is_backing, is_starrable, is_starred, location, permissions, photo, profile, slug, source_url, spotlight)) %>%
+  filter(state %in% c("successful", "failed", "canceled")) %>%
+  unique(by = "id") %>%
+  mutate(created_at = as_date(as_datetime(as.integer(created_at)))) %>%
+  mutate(launched_at = as_date(as_datetime(as.integer(launched_at)))) %>%
+  mutate(deadline = as_date(as_datetime(as.integer(deadline)))) %>%
+  mutate(state_changed_at = as_date(as_datetime(as.integer(state_changed_at)))) %>%
+  arrange(desc(ymd(launched_at)))
+kickstarter_corrected
+path <- "/Users/justin/Desktop/Stats 15 HW/Final Project/corrected_file.csv"
+fwrite(kickstarter_corrected, path)
+```
+
